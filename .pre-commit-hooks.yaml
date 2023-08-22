@@ -199,3 +199,9 @@
     language: python
     types: [text]
     stages: [commit, push, manual]
+-   id: check-chains-json
+    name: check chains json
+    description: checks that chains json configured right.
+    entry: check-chains-json
+    language: python
+    types: [json]
