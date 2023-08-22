@@ -5,18 +5,25 @@ import json
 from typing import Any
 from typing import Sequence
 
+def check_asset_ids(chains: list) -> None:
+    for chain in chains:
+        seen_ids = set()
+        if 'assets' in chain:
+            for asset in chain['assets']:
+                if asset['assetId'] in seen_ids:
+                    raise ValueError(f"Duplicate id '{asset['assetId']}' found.")
+                else:
+                    seen_ids.add(asset['assetId'])
 
-def raise_duplicate_keys(
-        ordered_pairs: list[tuple[str, Any]],
-) -> dict[str, Any]:
-    d = {}
-    for key, val in ordered_pairs:
-        if key in d:
-            raise ValueError(f'Duplicate key: {key}')
-        else:
-            d[key] = val
-    return d
-
+def check_node_is_unique(chains: list) -> None:
+    for chain in chains:
+        seen_urls = set()
+        if 'nodes' in chain:
+            for node in chain['nodes']:
+                if node['url'] in seen_urls:
+                    raise ValueError(f"Duplicate url '{node['url']}' found.")
+                else:
+                    seen_urls.add(node['url'])
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
@@ -27,9 +34,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     for filename in args.filenames:
         with open(filename, 'rb') as f:
             try:
-                json.load(f, object_pairs_hook=raise_duplicate_keys)
+                chains_json = json.load(f)
+                check_asset_ids(chains_json)
+                check_node_is_unique(chains_json)
             except ValueError as exc:
-                print(f'{filename}: Failed to json decode ({exc})')
+                print(f'{filename}: Found problems - ({exc})')
                 retval = 1
     return retval
 
