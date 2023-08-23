@@ -35,8 +35,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         with open(filename, 'rb') as f:
             try:
                 chains_json = json.load(f)
-                check_asset_ids(chains_json)
-                check_node_is_unique(chains_json)
+                if isinstance(chains_json, list):
+                    check_asset_ids(chains_json)
+                    check_node_is_unique(chains_json)
             except ValueError as exc:
                 print(f'{filename}: Found problems - ({exc})')
                 retval = 1
