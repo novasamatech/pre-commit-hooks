@@ -5,8 +5,8 @@ import json
 from typing import Sequence
 
 def check_chain_id_is_unique(chains: list) -> None:
+  seen_ids = set()
   for chain in chains:
-    seen_ids = set()
     if 'chainIndex' in chain:
       if chain['chainIndex'] in seen_ids:
         raise ValueError(f"Duplicate id '{chain['chainIndex']}' found.")
