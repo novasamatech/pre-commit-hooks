@@ -205,3 +205,9 @@
     entry: check-chains-json
     language: python
     types: [json]
+-   id: check-telenova-config
+    name: check telenova config
+    description: checks that telenova config configured right.
+    entry: check-telenova-config
+    language: python
+    types: [json]
