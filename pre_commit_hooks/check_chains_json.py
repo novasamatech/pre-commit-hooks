@@ -27,12 +27,12 @@ def check_node_is_unique(chains: list) -> None:
                 else:
                     seen_urls.add(node['url'])
 
-def check_icon_existence(chains: list, base_path: str) -> None:
+def check_icon_existence(chains: list) -> None:
     for chain in chains:
         if 'assets' in chain:
             for asset in chain['assets']:
                 if 'icon' in asset:
-                    icon_path = Path(base_path) / 'icons' / 'tokens' / 'colored' / asset['icon']
+                    icon_path = Path('icons') / 'tokens' / 'colored' / asset['icon']
                     if not icon_path.is_file():
                         raise ValueError(f"Icon file '{asset['icon']}' not found in 'icons/tokens/colored' directory.")
 
@@ -50,8 +50,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if isinstance(chains_json, list):
                     check_asset_ids(chains_json)
                     check_node_is_unique(chains_json)
-                    base_path = os.path.dirname(os.path.dirname(filename))
-                    check_icon_existence(chains_json, base_path)
+                    check_icon_existence(chains_json)
             except ValueError as exc:
                 print(f'{filename}: Found problems - ({exc})')
                 retval = 1
