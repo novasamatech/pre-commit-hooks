@@ -16,21 +16,18 @@ def check_icon_existence_recursive(data: Any, parent_key: str = '') -> None:
                         if branch in value:
                             value = value.split(branch, 1)[1]
                             break
-                
-                if parent_key == 'categories':
-                    icon_path = Path(value)
-                else:
-                    if value.startswith('icons/dapps/'):
-                        icon_path = Path(value)
-                    else:
-                        icon_path = Path('icons') / 'dapps' / value
-                
+
+                icon_path = (
+                    Path(value) if parent_key == 'categories' or value.startswith('icons/dapps/')
+                    else Path('icons') / 'dapps' / value
+                )
+
                 if not icon_path.is_file():
-                    raise ValueError(
-                        f"Icon file '{value}' not found at path '{icon_path}'.",
-                    )
-            else:
+                    raise ValueError(f"Icon file '{value}' not found at path '{icon_path}'.")
+
+            elif isinstance(value, (dict, list)):
                 check_icon_existence_recursive(value, key)
+                
     elif isinstance(data, list):
         for item in data:
             check_icon_existence_recursive(item, parent_key)
