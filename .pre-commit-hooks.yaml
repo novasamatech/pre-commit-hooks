@@ -211,3 +211,15 @@
     entry: check-telenova-config
     language: python
     types: [json]
+-   id: check-dapps-json
+    name: check dapps json
+    description: checks that dapps json configured right.
+    entry: check-dapps-json
+    language: python
+    types: [json]
+-   id: check-chains-json
+    name: check chains json
+    description: checks that chains json configured right.
+    entry: check-chains-json
+    language: python
+    types: [json]
