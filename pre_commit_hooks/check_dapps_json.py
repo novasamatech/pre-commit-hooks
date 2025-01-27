@@ -11,6 +11,12 @@ def check_icon_existence_recursive(data: Any, parent_key: str = '') -> None:
     if isinstance(data, dict):
         for key, value in data.items():
             if key == 'icon' and isinstance(value, str):
+                if value.startswith('https://raw.githubusercontent.com/'):
+                    for branch in ('master/', 'main/'):
+                        if branch in value:
+                            value = value.split(branch, 1)[1]
+                            break
+                
                 if parent_key == 'categories':
                     icon_dir = 'categories'
                 else:
