@@ -37,6 +37,17 @@ def check_icon_existence(chains: list) -> None:
                     if not icon_path.is_file():
                         raise ValueError(f"Icon file '{asset['icon']}' not found in 'icons/tokens/colored' directory.")
 
+def check_currency_id_scale(chains: list) -> None:
+    for chain in chains:
+        seen_scales = set()
+        if 'assets' in chain:
+            for asset in chain['assets']:
+                if 'typeExtras' in asset and 'currencyIdScale' in asset['typeExtras']:
+                    scale = asset['typeExtras']['currencyIdScale']
+                    if scale in seen_scales:
+                        raise ValueError(f"Duplicate currencyIdScale '{scale}' found.")
+                    else:
+                        seen_scales.add(scale)
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
@@ -50,6 +61,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 chains_json = json.load(f)
                 if isinstance(chains_json, list):
                     check_asset_ids(chains_json)
+                    check_currency_id_scale(chains_json)
                     check_node_is_unique(chains_json)
                     
                     # Check if filename includes a version
