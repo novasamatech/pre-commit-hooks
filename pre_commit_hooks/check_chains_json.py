@@ -48,6 +48,19 @@ def check_currency_id_scale(chains: list) -> None:
                         raise ValueError(f"Duplicate currencyIdScale '{scale}' found.")
                     else:
                         seen_scales.add(scale)
+                        
+def check_urls_have_no_space(chains: list) -> None:
+    for chain in chains:
+        if 'nodes' in chain:
+            for node in chain['nodes']:
+                if ' ' in node['url']:
+                    raise ValueError(f"Space in node url '{node['url']}' found.")
+        if ' ' in chain['icon']:
+                    raise ValueError(f"Space in {chain['icon']} chain icon url found.")
+        for service_name, service_list in chain["externalApi"].items():
+            for service_config in service_list:
+                if ' ' in service_config['url']:
+                    raise ValueError(f"Space in externalApi url '{service_config['url']}' found.")
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
@@ -63,6 +76,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     check_asset_ids(chains_json)
                     check_currency_id_scale(chains_json)
                     check_node_is_unique(chains_json)
+                    check_urls_have_no_space(chains_json)
                     
                     # Check if filename includes a version
                     version_match = re.search(r'v(\d+)', filename)
