@@ -50,17 +50,33 @@ def check_currency_id_scale(chains: list) -> None:
                         seen_scales.add(scale)
                         
 def check_urls_have_no_space(chains: list) -> None:
+    invalid_chars = [' ']
+    url_prefixes = ('http://', 'https://', 'ws://', 'wss://')
+
+    def validate_url(url: str, chain_id: str) -> None:
+        """Check if URL contains invalid characters."""
+        for invalid_char in invalid_chars:
+            if invalid_char in url:
+                raise ValueError(f"Chain '{chain_id}': Invalid character '{invalid_char}' in url '{url}' found.")
+
+    def find_and_check_urls(obj, chain_id: str) -> None:
+        """Recursively traverse the object and check all URL strings."""
+        if isinstance(obj, dict):
+            for value in obj.values():
+                find_and_check_urls(value, chain_id)
+        elif isinstance(obj, list):
+            for item in obj:
+                find_and_check_urls(item, chain_id)
+        elif isinstance(obj, str):
+            for prefix in url_prefixes:
+                if prefix in obj:
+                    validate_url(obj, chain_id)
+                    break
+
     for chain in chains:
-        if 'nodes' in chain:
-            for node in chain['nodes']:
-                if ' ' in node['url']:
-                    raise ValueError(f"Space in node url '{node['url']}' found.")
-        if ' ' in chain['icon']:
-                    raise ValueError(f"Space in {chain['icon']} chain icon url found.")
-        for service_name, service_list in chain["externalApi"].items():
-            for service_config in service_list:
-                if ' ' in service_config['url']:
-                    raise ValueError(f"Space in externalApi url '{service_config['url']}' found.")
+        chain_id = chain.get('chainId', 'unknown')
+        find_and_check_urls(chain, chain_id)
+
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
