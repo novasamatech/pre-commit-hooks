@@ -78,6 +78,28 @@ def check_urls_have_no_space(chains: list) -> None:
         find_and_check_urls(chain, chain_id)
 
 
+def check_chain_has_wss_node(chains: list) -> None:
+    """Every chain must keep at least one ws:// or wss:// node.
+
+    Clients pick a websocket node for every chain they register, so a chain
+    left with only http(s) endpoints stalls chain registration app-wide, not
+    just for that chain. See nova-utils#4392.
+    """
+    ws_schemes = ('ws://', 'wss://')
+
+    for chain in chains:
+        if 'nodes' not in chain:
+            continue
+
+        name = chain.get('name', chain.get('chainId', 'unknown'))
+        if not any(str(node.get('url', '')).startswith(ws_schemes) for node in chain['nodes']):
+            raise ValueError(
+                f"Chain '{name}' has no ws:// or wss:// node. Add a websocket "
+                "node or remove the chain - clients cannot register a chain "
+                "that only has http(s) nodes."
+            )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('filenames', nargs='*', help='Filenames to check.')
@@ -92,6 +114,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     check_asset_ids(chains_json)
                     check_currency_id_scale(chains_json)
                     check_node_is_unique(chains_json)
+                    check_chain_has_wss_node(chains_json)
                     check_urls_have_no_space(chains_json)
                     
                     # Check if filename includes a version
